@@ -54,4 +54,32 @@ const loginUser = async({email , password}) => {
     }
 }
 
-module.exports = {registerUser , loginUser}
+const refreshToken = async(incomingRefreshToken) => {
+
+    const decoded = jwt.verify(incomingRefreshToken , process.env.refreshToken);
+
+    const user = await User.findById(decoded.id);
+
+    if(!user){
+        throw new Error("Invalid User")
+    }
+
+    if(user.refreshToken != incomingRefreshToken){
+        throw new Error("Invalid refresh Token")
+    }
+
+    const newAccessToken = generateAccessToken(user)
+    const newRefreshToken = generateRefreshToken(user)
+
+    user.refreshToken = newRefreshToken
+
+    await user.save()
+
+    return {
+        newAccessToken,
+        newRefreshToken
+    }
+
+}
+
+module.exports = {registerUser , loginUser , refreshToken}

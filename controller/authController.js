@@ -42,4 +42,20 @@ const login = async(req, res) => {
 
 }
 
-module.exports = {register , login};
+const refreshToken = async(req , res) => {
+
+    try {
+
+        const result = await authServices.refreshToken(req.body.refreshToken)
+
+        return res.status(200).json(result)
+        
+    } catch (error) {
+        res.status(400).json({
+            message : error.message
+        })
+    }
+
+}
+
+module.exports = {register , login , refreshToken};
