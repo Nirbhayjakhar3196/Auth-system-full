@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require("../models/userModel")
 
+const {generateAccessToken , generateRefreshToken} = require("../utils/tokenUtils")
+
 const registerUser = async({name , email , password}) => {
 
     const existingUser = await User.findOne({email})
@@ -35,13 +37,17 @@ const loginUser = async({email , password}) => {
         throw new Error("Invalid Credentials")
     }
 
-    const token = jwt.sign(
-        {id : user._id , role : user.role},
-        process.env.JWT_SECRET,
-        {expiresIn : '7d'}
-    )
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    return token;
+    user.refreshToken = refreshToken
+
+    await user.save()
+
+    return {
+        accessToken,
+        refreshToken
+    }
 }
 
 module.exports = {registerUser , loginUser}
