@@ -24,11 +24,14 @@ const login = async(req, res) => {
 
     try {
 
-        const token = await authServices.loginUser(req.body)
-        
-        return res.status(200).json({
-            message : "Login successfully",
-            token
+        const {accessToken , refreshToken} = await authServices.loginUser(
+            req.body.email,
+            req.body.password
+        )
+
+        res.status(200).json({
+            accessToken,
+            refreshToken
         })
         
     } catch (error) {
