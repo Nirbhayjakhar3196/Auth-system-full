@@ -25,7 +25,11 @@ const registerUser = async({name , email , password}) => {
 
 const loginUser = async({email , password}) => {
 
+    console.log("EMAIL RECEIVED:", email);
+
     const user = await User.findOne({email}).select("+password");
+
+     console.log("USER FOUND:", user);
 
     if(!user){
         throw new Error("User Not registered");

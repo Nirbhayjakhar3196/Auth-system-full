@@ -24,10 +24,10 @@ const login = async(req, res) => {
 
     try {
 
-        const {accessToken , refreshToken} = await authServices.loginUser(
-            req.body.email,
-            req.body.password
-        )
+        const {accessToken , refreshToken} = await authServices.loginUser({
+            email : req.body.email,
+            password : req.body.password
+    })
 
         res.status(200).json({
             accessToken,
