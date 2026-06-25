@@ -4,32 +4,28 @@ const User = require("../models/userModel")
 
 const {generateAccessToken , generateRefreshToken} = require("../utils/tokenUtils")
 
-const registerUser = async({name , email , password}) => {
+const registerUser = async ({ name, email, password }) => {
 
-    const existingUser = await User.findOne({email})
 
-    if (existingUser){
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
         throw new Error("user already registered");
     }
 
-    const hashedPassword = await bcrypt.hash(password , 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
         name,
         email,
         password: hashedPassword
-    })
+    });
 
     return user;
 }
-
 const loginUser = async({email , password}) => {
 
-    console.log("EMAIL RECEIVED:", email);
-
     const user = await User.findOne({email}).select("+password");
-
-     console.log("USER FOUND:", user);
 
     if(!user){
         throw new Error("User Not registered");
@@ -56,7 +52,7 @@ const loginUser = async({email , password}) => {
 
 const refreshToken = async(incomingRefreshToken) => {
 
-    const decoded = jwt.verify(incomingRefreshToken , process.env.refreshToken);
+    const decoded = jwt.verify(incomingRefreshToken , process.env.REFRESH_SECRET);
 
     const user = await User.findById(decoded.id);
 
@@ -79,7 +75,24 @@ const refreshToken = async(incomingRefreshToken) => {
         newAccessToken,
         newRefreshToken
     }
-
 }
 
-module.exports = {registerUser , loginUser , refreshToken}
+const logoutUser = async(userId) => {
+
+    const user = await User.findById(userId);
+    
+    if(!user){
+        throw new Error("Invalid User")
+    }
+
+    user.refreshToken = null
+
+    await user.save()
+
+    return {
+        message: "User logged out successfully"
+    }
+    
+}
+
+module.exports = {registerUser , loginUser , refreshToken , logoutUser}

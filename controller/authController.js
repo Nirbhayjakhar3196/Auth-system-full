@@ -1,23 +1,25 @@
 
 const authServices = require('../services/authServices')
 
-const register = async (req , res) => {
+const register = async (req, res) => {
+
+    console.log(req.body);
 
     try {
-
-        const user = await authServices.registerUser(req.body)
+        const user = await authServices.registerUser(req.body);
 
         return res.status(201).json({
-            message : "Usesr Registered Successfully",
+            message: "User Registered Successfully",
             user
-        })
-        
-    } catch (error) {
-        res.status(400).json({
-            message : error.message
-        })
-    }
+        });
 
+    } catch (error) {
+        console.log(error);
+
+        return res.status(400).json({
+            message: error.message
+        });
+    }
 }
 
 const login = async(req, res) => {
@@ -58,4 +60,21 @@ const refreshToken = async(req , res) => {
 
 }
 
-module.exports = {register , login , refreshToken};
+const logout = async(req , res) => {
+
+    try {
+
+        const result = await authServices.logoutUser(req.user.id)
+
+        return res.status(200).json(result)
+        
+    }
+    catch (error) {
+        res.status(400).json({
+            message : error.message
+        })
+    }
+
+}
+
+module.exports = {register , login , refreshToken , logout};
