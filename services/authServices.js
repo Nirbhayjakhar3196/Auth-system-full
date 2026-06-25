@@ -46,7 +46,12 @@ const loginUser = async({email , password}) => {
 
     return {
         accessToken,
-        refreshToken
+        refreshToken,
+        user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email
+        }
     }
 }
 
@@ -65,34 +70,28 @@ const refreshToken = async(incomingRefreshToken) => {
     }
 
     const newAccessToken = generateAccessToken(user)
-    const newRefreshToken = generateRefreshToken(user)
-
-    user.refreshToken = newRefreshToken
-
-    await user.save()
 
     return {
-        newAccessToken,
-        newRefreshToken
+        accessToken: newAccessToken
     }
 }
 
-const logoutUser = async(userId) => {
+const logoutUser = async(incomingRefreshToken) => {
 
-    const user = await User.findById(userId);
-    
-    if(!user){
-        throw new Error("Invalid User")
+    if (!incomingRefreshToken) {
+        throw new Error("Refresh token is required")
     }
 
-    user.refreshToken = null
-
-    await user.save()
+    const user = await User.findOne({ refreshToken: incomingRefreshToken });
+    
+    if(user){
+        user.refreshToken = null
+        await user.save()
+    }
 
     return {
-        message: "User logged out successfully"
+        message: "Logged out successfully"
     }
-    
 }
 
 module.exports = {registerUser , loginUser , refreshToken , logoutUser}
